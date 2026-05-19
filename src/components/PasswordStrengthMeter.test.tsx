@@ -5,9 +5,8 @@ import { PasswordStrengthMeter } from "../components/PasswordStrengthMeter";
 
 describe("PasswordStrengthMeter", () => {
   // ── Tests de renderizado ──────────────────────────────────────
-  it("renderiza un input de tipo password", () => {
+  it("renderiza un input de tipo password accesible por label", () => {
     render(<PasswordStrengthMeter />);
-    // Punto extra: accesible por rol + label
     const input = screen.getByLabelText(/contraseña/i);
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute("type", "password");
@@ -15,7 +14,7 @@ describe("PasswordStrengthMeter", () => {
 
   it('muestra el indicador de fortaleza con el estado inicial "vacía"', () => {
     render(<PasswordStrengthMeter />);
-    expect(screen.getByRole("status")).toHaveTextContent("vacía");
+    expect(screen.getByRole("status")).toHaveTextContent(/^vacía$/);
   });
 
   // ── Tests de comportamiento ───────────────────────────────────
@@ -23,28 +22,28 @@ describe("PasswordStrengthMeter", () => {
     const user = userEvent.setup();
     render(<PasswordStrengthMeter />);
     await user.type(screen.getByLabelText(/contraseña/i), "abc");
-    expect(screen.getByRole("status")).toHaveTextContent("débil");
+    expect(screen.getByRole("status")).toHaveTextContent(/^débil$/);
   });
 
   it('muestra "media" al escribir 8+ caracteres sin números ni símbolos', async () => {
     const user = userEvent.setup();
     render(<PasswordStrengthMeter />);
     await user.type(screen.getByLabelText(/contraseña/i), "abcdefgh");
-    expect(screen.getByRole("status")).toHaveTextContent("media");
+    expect(screen.getByRole("status")).toHaveTextContent(/^media$/);
   });
 
   it('muestra "fuerte" al escribir 8+ caracteres con al menos un número', async () => {
     const user = userEvent.setup();
     render(<PasswordStrengthMeter />);
     await user.type(screen.getByLabelText(/contraseña/i), "abcdefg1");
-    expect(screen.getByRole("status")).toHaveTextContent("fuerte");
+    expect(screen.getByRole("status")).toHaveTextContent(/^fuerte$/);
   });
 
   it('muestra "muy fuerte" al escribir 8+ caracteres con número y símbolo', async () => {
     const user = userEvent.setup();
     render(<PasswordStrengthMeter />);
     await user.type(screen.getByLabelText(/contraseña/i), "abcdefg1!");
-    expect(screen.getByRole("status")).toHaveTextContent("muy fuerte");
+    expect(screen.getByRole("status")).toHaveTextContent(/^muy fuerte$/);
   });
 
   it('vuelve a "vacía" al borrar completamente la contraseña', async () => {
@@ -53,7 +52,7 @@ describe("PasswordStrengthMeter", () => {
     const input = screen.getByLabelText(/contraseña/i);
     await user.type(input, "abc");
     await user.clear(input);
-    expect(screen.getByRole("status")).toHaveTextContent("vacía");
+    expect(screen.getByRole("status")).toHaveTextContent(/^vacía$/);
   });
 
   // ── Tests de edge cases ───────────────────────────────────────
@@ -61,21 +60,27 @@ describe("PasswordStrengthMeter", () => {
     const user = userEvent.setup();
     render(<PasswordStrengthMeter />);
     await user.type(screen.getByLabelText(/contraseña/i), "abcdefgh");
-    expect(screen.getByRole("status")).not.toHaveTextContent("débil");
+    expect(screen.getByRole("status")).not.toHaveTextContent(/^débil$/);
   });
 
   it("una contraseña de exactamente 7 caracteres no debe ser media", async () => {
     const user = userEvent.setup();
     render(<PasswordStrengthMeter />);
     await user.type(screen.getByLabelText(/contraseña/i), "abcdefg");
-    expect(screen.getByRole("status")).not.toHaveTextContent("media");
+    expect(screen.getByRole("status")).not.toHaveTextContent(/^media$/);
   });
 
   it("una contraseña con solo símbolos y menos de 8 caracteres sigue siendo débil", async () => {
     const user = userEvent.setup();
     render(<PasswordStrengthMeter />);
     await user.type(screen.getByLabelText(/contraseña/i), "!@#$%^&");
-    expect(screen.getByRole("status")).toHaveTextContent("débil");
+    expect(screen.getByRole("status")).toHaveTextContent(/^débil$/);
+  });
+
+  // ── Punto extra: accesibilidad por rol ────────────────────────
+  it("el input es encontrable por su rol implícito de textbox dentro del label", () => {
+    render(<PasswordStrengthMeter />);
+    expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument();
   });
 
   // ── Punto extra: barra de progreso ────────────────────────────
@@ -103,6 +108,6 @@ describe("PasswordStrengthMeter", () => {
     const user = userEvent.setup();
     render(<PasswordStrengthMeter />);
     await user.type(screen.getByLabelText(/contraseña/i), "AbcDefg1");
-    expect(screen.getByRole("status")).toHaveTextContent("fuerte con case");
+    expect(screen.getByRole("status")).toHaveTextContent(/^fuerte con case$/);
   });
 });

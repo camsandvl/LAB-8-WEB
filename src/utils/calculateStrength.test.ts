@@ -38,11 +38,11 @@ describe("calculateStrength", () => {
   });
 
   // ── Fuerte ────────────────────────────────────────────────────
-  it('retorna "fuerte" para contraseña de 8+ caracteres con al menos un número', () => {
+  it('retorna exactamente "fuerte" para contraseña de 8+ caracteres con número, sin símbolo ni mayúsculas', () => {
     expect(calculateStrength("abcdefg1")).toBe("fuerte");
   });
 
-  it('retorna "fuerte" con múltiples números pero sin símbolos', () => {
+  it('retorna exactamente "fuerte" con múltiples números, sin símbolos ni mayúsculas', () => {
     expect(calculateStrength("abcde123")).toBe("fuerte");
   });
 
@@ -56,15 +56,19 @@ describe("calculateStrength", () => {
   });
 
   it('retorna "muy fuerte" con variedad de símbolos', () => {
-    expect(calculateStrength("Passw0rd@")).toBe("muy fuerte");
+    expect(calculateStrength("passw0rd@")).toBe("muy fuerte");
   });
 
-  // ── Punto extra: mayúsculas y minúsculas mezcladas ────────────
-  it('retorna "muy fuerte" con 8+ chars, número, símbolo y mayúsculas mezcladas', () => {
+  it('retorna "muy fuerte" con número, símbolo y mayúsculas mezcladas', () => {
     expect(calculateStrength("Abc1!xyz")).toBe("muy fuerte");
   });
 
-  it('retorna "fuerte con case" cuando tiene 8+ chars, número y mayúsculas pero sin símbolo', () => {
+  // ── Punto extra: mayúsculas y minúsculas mezcladas ────────────
+  it('retorna "fuerte con case" con 8+ chars, número, mayúsculas mezcladas, sin símbolo', () => {
     expect(calculateStrength("AbcDefg1")).toBe("fuerte con case");
+  });
+
+  it('"fuerte con case" NO debe retornarse si hay símbolo (debe ser "muy fuerte")', () => {
+    expect(calculateStrength("AbcDef1!")).toBe("muy fuerte");
   });
 });
